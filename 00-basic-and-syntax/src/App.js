@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-// import logo from './logo.svg';
 import './App.css';
 import Person from './Person/Person';
+// import Radium, { StyleRoot } from 'radium';
 
 class App extends Component {
   state = {
@@ -42,9 +42,9 @@ class App extends Component {
   render() {
     // inline style
     const style = {
-      backgroundColor: 'white',
+      backgroundColor: 'green',
       font: 'inherit',
-      border: '1px solid blue',
+      border: '1px solid',
       padding: '8px',
       cursor: 'pointer'
     }
@@ -60,15 +60,21 @@ class App extends Component {
           ))}
         </div> 
       )
+      style.backgroundColor = 'red';
     }
     /** */
 
+    let classes = [];
+    if (this.state.persons.length <= 2) classes.push('red');
+    if (this.state.persons.length <= 1) classes.push('bold');
+
     return (
-      <div className="App">
-        <h1>Hi, im a react app.</h1>
-        <button style={style} onClick={this.togglePersonHandler}>show / hide</button>
-        {persons}
-      </div>
+        <div className="App">
+          <h1>Hi, im a react app.</h1>
+          <p className={classes.join(' ')}>this is really working</p>
+          <button style={style} onClick={this.togglePersonHandler}>show / hide</button>
+          {persons}
+        </div>
     );
     // return React.createElement('div', { className: 'App' }, React.createElement('h1', null, 'Im react app'))
   }
