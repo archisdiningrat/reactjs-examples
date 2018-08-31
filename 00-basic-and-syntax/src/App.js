@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './App.css';
+import classes from './App.css';
 import Person from './Person/Person';
 // import Radium, { StyleRoot } from 'radium';
 
@@ -41,13 +41,15 @@ class App extends Component {
 
   render() {
     // inline style
-    const style = {
-      backgroundColor: 'green',
-      font: 'inherit',
-      border: '1px solid',
-      padding: '8px',
-      cursor: 'pointer'
-    }
+    // const style = {
+    //   backgroundColor: 'green',
+    //   font: 'inherit',
+    //   border: '1px solid',
+    //   padding: '8px',
+    //   cursor: 'pointer'
+    // }
+
+    let btnClass = '';
 
     /** render conditionally JS ways */
     let persons = null;
@@ -60,19 +62,19 @@ class App extends Component {
           ))}
         </div> 
       )
-      style.backgroundColor = 'red';
+      btnClass = classes.Red;
     }
     /** */
 
-    let classes = [];
-    if (this.state.persons.length <= 2) classes.push('red');
-    if (this.state.persons.length <= 1) classes.push('bold');
+    let assignedClasses = [];
+    if (this.state.persons.length <= 2) assignedClasses.push( classes.red );
+    if (this.state.persons.length <= 1) assignedClasses.push(classes.bold );
 
     return (
-        <div className="App">
+      <div className={classes.App}>
           <h1>Hi, im a react app.</h1>
-          <p className={classes.join(' ')}>this is really working</p>
-          <button style={style} onClick={this.togglePersonHandler}>show / hide</button>
+          <p className={assignedClasses.join(' ')}>this is really working</p>
+        <button onClick={this.togglePersonHandler} className={btnClass}>show / hide</button>
           {persons}
         </div>
     );
