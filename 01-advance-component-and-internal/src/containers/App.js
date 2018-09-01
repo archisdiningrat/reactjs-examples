@@ -4,12 +4,32 @@ import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
 
 class App extends Component {
-  state = {
-    persons:[
-      { id: 1, name: 'atikha', age: 23 },
-      { id: 2, name: 'archie', age: 22 }
-    ],
-    showPersons: true
+
+  constructor(props){
+    super(props);
+    this.state = {
+      persons: [
+        { id: 1, name: 'atikha', age: 23 },
+        { id: 2, name: 'archie', age: 22 },
+        { id: 3, name: 'angga', age: 20 }
+      ],
+      showPersons: true
+    }
+    console.log('[App.js] inside constructor')
+  }
+
+  componentWillMount() {
+    console.log('[App.js] inside componentWillMount')
+  }
+
+  componentDidMount() {
+    console.log('[App.js] inside componentDidMount')
+  }
+
+  /** Update Lifecyle Hooks */
+  shouldComponentUpdate(nextProps, nextState){
+    console.log('[UPDATE App.js] inside shouldComponentUpdate')
+    return true;
   }
 
   nameChangedHandler = ({ target: { value: newName }}, id) => {
@@ -40,7 +60,7 @@ class App extends Component {
   }
 
   render() {
-
+    console.log('[App.js] inside render')
     let persons = null;
     if (this.state.showPersons){
       persons = <Persons 
