@@ -1,5 +1,6 @@
 import React from 'react';
 import classes from './Cockpit.css'
+import Aux from '../../hoc/Aux';
 
 export default (props) => {
     let assignedClasses = [];
@@ -10,10 +11,16 @@ export default (props) => {
     if (props.persons.length <= 1) assignedClasses.push(classes.bold);
 
     return (
-        <div className={classes.Cockpit}>
-            <h1>Hi, im a react app.</h1>
-            <p className={assignedClasses.join(' ')}>this is really working</p>
-            <button onClick={props.toggle} className={btnClass}>show / hide</button>
-        </div>
+        /**
+         * HIGH ORDER COMPONENT
+         */
+        <Aux>
+            <div className={classes.Cockpit}>
+                <h1>Hi, im a react app.</h1>
+                <p className={assignedClasses.join(' ')}>this is really working</p>
+                <button onClick={props.toggle} className={btnClass}>show / hide</button>
+            </div>
+            <button onClick={props.login}>Login</button>
+        </Aux>
     )
 };

@@ -2,18 +2,23 @@ import React, { Component } from 'react';
 import classes from './App.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
+import WithClass from '../hoc/WithClass';
 
+
+/** Global Context */
+export const AuthContext = React.createContext(false);
 class App extends Component {
 
   constructor(props){
     super(props);
     this.state = {
       persons: [
-        { id: 1, name: 'atikha', age: 23 },
         { id: 2, name: 'archie', age: 22 },
-        { id: 3, name: 'angga', age: 20 }
+        { id: 3, name: 'angga', age: 20 },
       ],
-      showPersons: true
+      showPersons: false,
+      counter: 0,
+      authenticated: false
     }
     console.log('[App.js] inside constructor')
   }
@@ -49,7 +54,7 @@ class App extends Component {
 
   togglePersonHandler = () => {
     const show = this.state.showPersons;
-    this.setState({ showPersons: !show });
+    this.setState((prevState, props) => ({ showPersons: !show, counter: prevState.counter + 1 }));
   }
 
   deletePersonHandler = (index) => {
@@ -57,6 +62,10 @@ class App extends Component {
     const persons = [...this.state.persons];
     persons.splice(index, 1);
     this.setState({ persons });
+  }
+
+  loginHandler = () => {
+    this.setState({ authenticated: true });
   }
 
   render() {
@@ -70,14 +79,23 @@ class App extends Component {
     }
 
     return (
-      <div className={classes.App}>
+      /**
+       * Wrapped with HOC
+       */
+      <WithClass classes={classes.App}>
+        <button onClick={() => this.setState({ showPersons: true })}>Show Person</button>
           <Cockpit
             showPersons={this.state.showPersons}
             persons={this.state.persons}
             toggle={this.togglePersonHandler}
+            login={this.loginHandler}
           />
+
+        <AuthContext.Provider value={this.state.authenticated}>
           {persons}
-        </div>
+        </AuthContext.Provider>
+
+      </WithClass>
     );
   }
 }
