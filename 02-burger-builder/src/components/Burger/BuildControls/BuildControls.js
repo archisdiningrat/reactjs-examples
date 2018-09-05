@@ -22,7 +22,7 @@ export default (props) => {
                     disabled={props.disabled[control.type]}
                 />
             ))}
-            <button className={classes.OrderButton} disabled={!props.purchaseable}>ORDER</button>
+            <button onClick={props.ordered} className={classes.OrderButton} disabled={!props.purchaseable}>ORDER</button>
         </div>
     )
 }
