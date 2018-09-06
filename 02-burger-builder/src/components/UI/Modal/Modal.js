@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import classes from './Modal.css'
+import Backdrop from '../Backdrop/Backdrop';
 
 export default (props) => {
     const style = {
@@ -7,8 +8,11 @@ export default (props) => {
         opacity: props.show ? '1' : '0'
     };
     return (
-        <div className={classes.Modal} style={style}>
-            {props.children}
-        </div>
+        <Fragment>
+            <Backdrop show={props.show} clicked={props.modalClosed}></Backdrop>
+            <div className={classes.Modal} style={style}>
+                {props.children}
+            </div>
+        </Fragment>
     );
 }
