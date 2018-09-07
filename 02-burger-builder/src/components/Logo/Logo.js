@@ -4,7 +4,7 @@ import classes from './Logo.css';
 
 export default (props) => {
     return (
-        <div className={classes.Logo} style={ { height: props.height, 'margin-bottom': props.margin } }>
+        <div className={classes.Logo} style={{ height: props.height, marginBottom: props.margin } }>
             <img src={logo} alt="MyBurger"></img>
         </div>
     )

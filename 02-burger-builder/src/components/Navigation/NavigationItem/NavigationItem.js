@@ -9,7 +9,7 @@ export default (props) => {
     return (
         <ul className={classes.NavigationItem}>
             {links.map(link => (
-                <li className={classes.NavigationChild}>
+                <li className={classes.NavigationChild} key={link.name}>
                     <a href={link.path} className={link.active ? classes.active : null}>{link.name}</a>
                 </li>
             ))}
