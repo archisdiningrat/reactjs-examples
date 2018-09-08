@@ -4,7 +4,7 @@ import Post from '../../components/Post/Post';
 import FullPost from '../../components/FullPost/FullPost';
 import NewPost from '../../components/NewPost/NewPost';
 import './Blog.css';
-import axios from 'axios';
+import axios from '../../axios';
 
 class Blog extends Component {
     state = {
@@ -14,7 +14,7 @@ class Blog extends Component {
 
     // mounted
     async componentDidMount(){
-        const { data: posts } = await axios.get('https://jsonplaceholder.typicode.com/posts');
+        const { data: posts } = await axios.get('/posts');
         const updatedPosts = posts.slice(0, 4).map(post => ({
             ...post,
             author: 'ikhaa'
