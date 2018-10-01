@@ -13,6 +13,7 @@ class Posts extends Component {
     }
 
     componentDidMount() {
+        console.log(this.props);
         axios.get('/posts')
             .then(response => {
                 const posts = response.data.slice(0, 4);
@@ -26,7 +27,7 @@ class Posts extends Component {
                 // console.log( response );
             })
             .catch(error => {
-                // console.log(error);
+                console.log(error);
                 // this.setState({ error: true });
             });
     }
