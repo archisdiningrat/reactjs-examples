@@ -4,6 +4,7 @@ import IngredientForm from "./IngredientForm";
 import IngredientList from "./IngredientList";
 import ErrorModal from "../UI/ErrorModal";
 import Search from "./Search";
+import useHttp from "../../hooks/http-hook";
 
 // decoupled from component
 const ingredientReducer = (currentIngredient, action) => {
@@ -22,45 +23,12 @@ const ingredientReducer = (currentIngredient, action) => {
   }
 };
 
-const httpReducer = (httpState, action) => {
-  switch (action.type) {
-    case "SEND":
-      return {
-        loading: true,
-        error: null,
-      };
-
-    case "RESPONSE":
-      return {
-        ...httpState,
-        loading: false,
-      };
-
-    case "ERROR":
-      return {
-        loading: false,
-        error: action.error,
-      };
-
-    case "CLEAR":
-      return {
-        ...httpState,
-        error: null,
-      };
-
-    default:
-      throw new Error("WHOOPS");
-  }
-};
-
 function Ingredients() {
   const [ingredientProp, dispatch] = useReducer(ingredientReducer, []);
   // const [ingredientProp, setIngredient] = useState([]);
 
-  const [uiProp, dispatchUi] = useReducer(httpReducer, {
-    loading: false,
-    error: null,
-  });
+  // custom hook
+  const { loading, error, sendRequest } = useHttp();
   // const [isLoadingProp, setLoading] = useState(false);
   // const [hasErrorProp, setHasError] = useState(null);
 
@@ -89,34 +57,31 @@ function Ingredients() {
   }, [ingredientProp]); // will act like component did update
 
   // wrapped with useCallback to avoid unnecessary rerender
-  const addIngredientHandler = useCallback((ingredient) => {
-    dispatchUi({ type: "SEND" });
-
-    // post data to firebase
-    fetch("https://my-portfolio-c4789.firebaseio.com/ingredients.json", {
-      method: "POST",
-      body: JSON.stringify(ingredient),
-      headers: { "Content-type": "application/json" },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        dispatchUi({ type: "RESPONSE" });
-        dispatch({ type: "ADD", ingredient: { id: data.name, ...ingredient } });
-      })
-      .catch((err) => {
-        dispatchUi({ action: "ERROR", error: err.message });
+  const addIngredientHandler = useCallback(
+    (ingredient) => {
+      sendRequest(
+        "https://my-portfolio-c4789.firebaseio.com/ingredients.json",
+        "POST",
+        JSON.stringify(ingredient)
+      );
+      dispatch({
+        type: "ADD",
+        ingredient: { id: Math.random().toString(), ...ingredient },
       });
-  }, []);
+    },
+    [sendRequest]
+  );
 
-  const removeIngredienthandler = useCallback((id) => {
-    dispatchUi({ type: "SEND" });
-    fetch(`https://my-portfolio-c4789.firebaseio.com/ingredients/${id}.json`, {
-      method: "DELETE",
-    }).then(() => {
-      dispatchUi({ type: "RESPONSE" });
+  const removeIngredienthandler = useCallback(
+    (id) => {
+      sendRequest(
+        `https://my-portfolio-c4789.firebaseio.com/ingredients/${id}.json`,
+        "DELETE"
+      );
       dispatch({ type: "DELETE", id });
-    });
-  }, []);
+    },
+    [sendRequest]
+  );
 
   const clearErrorHandler = useCallback(() => {
     dispatch({ type: "CLEAR" });
@@ -134,10 +99,8 @@ function Ingredients() {
 
   return (
     <div className="App">
-      {uiProp.error && (
-        <ErrorModal onClose={clearErrorHandler}>{uiProp.error}</ErrorModal>
-      )}
-      <IngredientForm onAdd={addIngredientHandler} loading={uiProp.loading} />
+      {error && <ErrorModal onClose={clearErrorHandler}>{error}</ErrorModal>}
+      <IngredientForm onAdd={addIngredientHandler} loading={loading} />
 
       <section>
         <Search onLoadIngredients={loadIngredientsHandler} />
