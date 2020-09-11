@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useReducer } from "react";
+import React, { useEffect, useCallback, useReducer, useMemo } from "react";
 
 import IngredientForm from "./IngredientForm";
 import IngredientList from "./IngredientList";
@@ -57,7 +57,10 @@ function Ingredients() {
   const [ingredientProp, dispatch] = useReducer(ingredientReducer, []);
   // const [ingredientProp, setIngredient] = useState([]);
 
-  const [uiProp, dispatchUi] = useReducer(httpReducer, []);
+  const [uiProp, dispatchUi] = useReducer(httpReducer, {
+    loading: false,
+    error: null,
+  });
   // const [isLoadingProp, setLoading] = useState(false);
   // const [hasErrorProp, setHasError] = useState(null);
 
@@ -85,7 +88,8 @@ function Ingredients() {
     console.log("RERENDERING INGREDIENTS", ingredientProp);
   }, [ingredientProp]); // will act like component did update
 
-  const addIngredientHandler = (ingredient) => {
+  // wrapped with useCallback to avoid unnecessary rerender
+  const addIngredientHandler = useCallback((ingredient) => {
     dispatchUi({ type: "SEND" });
 
     // post data to firebase
@@ -102,9 +106,9 @@ function Ingredients() {
       .catch((err) => {
         dispatchUi({ action: "ERROR", error: err.message });
       });
-  };
+  }, []);
 
-  const removeIngredienthandler = (id) => {
+  const removeIngredienthandler = useCallback((id) => {
     dispatchUi({ type: "SEND" });
     fetch(`https://my-portfolio-c4789.firebaseio.com/ingredients/${id}.json`, {
       method: "DELETE",
@@ -112,11 +116,21 @@ function Ingredients() {
       dispatchUi({ type: "RESPONSE" });
       dispatch({ type: "DELETE", id });
     });
-  };
+  }, []);
 
-  const clearErrorHandler = () => {
+  const clearErrorHandler = useCallback(() => {
     dispatch({ type: "CLEAR" });
-  };
+  }, []);
+
+  // to avoid redender when
+  const ingredientList = useMemo(() => {
+    return (
+      <IngredientList
+        ingredients={ingredientProp}
+        onRemoveItem={removeIngredienthandler}
+      ></IngredientList>
+    );
+  }, [ingredientProp, removeIngredienthandler]);
 
   return (
     <div className="App">
@@ -127,10 +141,7 @@ function Ingredients() {
 
       <section>
         <Search onLoadIngredients={loadIngredientsHandler} />
-        <IngredientList
-          ingredients={ingredientProp}
-          onRemoveItem={removeIngredienthandler}
-        ></IngredientList>
+        {ingredientList}
       </section>
     </div>
   );
