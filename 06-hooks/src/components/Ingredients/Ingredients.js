@@ -1,18 +1,69 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect, useCallback, useReducer } from "react";
 
 import IngredientForm from "./IngredientForm";
 import IngredientList from "./IngredientList";
 import ErrorModal from "../UI/ErrorModal";
 import Search from "./Search";
 
+// decoupled from component
+const ingredientReducer = (currentIngredient, action) => {
+  switch (action.type) {
+    case "SET":
+      return action.ingredients;
+
+    case "ADD":
+      return [...currentIngredient, action.ingredient];
+
+    case "DELETE":
+      return currentIngredient.filter((i) => i.id !== action.id);
+
+    default:
+      throw new Error("WHOOPS");
+  }
+};
+
+const httpReducer = (httpState, action) => {
+  switch (action.type) {
+    case "SEND":
+      return {
+        loading: true,
+        error: null,
+      };
+
+    case "RESPONSE":
+      return {
+        ...httpState,
+        loading: false,
+      };
+
+    case "ERROR":
+      return {
+        loading: false,
+        error: action.error,
+      };
+
+    case "CLEAR":
+      return {
+        ...httpState,
+        error: null,
+      };
+
+    default:
+      throw new Error("WHOOPS");
+  }
+};
+
 function Ingredients() {
-  const [ingredientProp, setIngredient] = useState([]);
-  const [isLoadingProp, setLoading] = useState(false);
-  const [hasErrorProp, setHasError] = useState(null);
+  const [ingredientProp, dispatch] = useReducer(ingredientReducer, []);
+  // const [ingredientProp, setIngredient] = useState([]);
+
+  const [uiProp, dispatchUi] = useReducer(httpReducer, []);
+  // const [isLoadingProp, setLoading] = useState(false);
+  // const [hasErrorProp, setHasError] = useState(null);
 
   // wrap with useCallback to avoid handler being stuck in infinite loop
   const loadIngredientsHandler = useCallback((ingredients) => {
-    setIngredient(ingredients);
+    dispatch({ type: "SET", ingredients });
   }, []);
 
   // useEffect(() => {
@@ -35,7 +86,7 @@ function Ingredients() {
   }, [ingredientProp]); // will act like component did update
 
   const addIngredientHandler = (ingredient) => {
-    setLoading(true);
+    dispatchUi({ type: "SEND" });
 
     // post data to firebase
     fetch("https://my-portfolio-c4789.firebaseio.com/ingredients.json", {
@@ -45,38 +96,34 @@ function Ingredients() {
     })
       .then((response) => response.json())
       .then((data) => {
-        setIngredient((prev) => {
-          return [...prev, { id: data.name, ...ingredient }];
-        });
+        dispatchUi({ type: "RESPONSE" });
+        dispatch({ type: "ADD", ingredient: { id: data.name, ...ingredient } });
       })
       .catch((err) => {
-        setHasError(err.message);
+        dispatchUi({ action: "ERROR", error: err.message });
       });
   };
 
   const removeIngredienthandler = (id) => {
-    setLoading(true);
+    dispatchUi({ type: "SEND" });
     fetch(`https://my-portfolio-c4789.firebaseio.com/ingredients/${id}.json`, {
       method: "DELETE",
     }).then(() => {
-      setIngredient((prev) => {
-        return prev.filter((i) => i.id !== id);
-      });
-      setLoading(false);
+      dispatchUi({ type: "RESPONSE" });
+      dispatch({ type: "DELETE", id });
     });
   };
 
   const clearErrorHandler = () => {
-    setHasError(null);
-    setLoading(false);
+    dispatch({ type: "CLEAR" });
   };
 
   return (
     <div className="App">
-      {hasErrorProp && (
-        <ErrorModal onClose={clearErrorHandler}>{hasErrorProp}</ErrorModal>
+      {uiProp.error && (
+        <ErrorModal onClose={clearErrorHandler}>{uiProp.error}</ErrorModal>
       )}
-      <IngredientForm onAdd={addIngredientHandler} loading={isLoadingProp} />
+      <IngredientForm onAdd={addIngredientHandler} loading={uiProp.loading} />
 
       <section>
         <Search onLoadIngredients={loadIngredientsHandler} />
